@@ -1,0 +1,26 @@
+[
+	{
+		"Name": "Speed",
+		"EffectType": "Speed",
+		"EffectStrength": 2000,
+		"EffectDescription": "Speed up"
+	},
+	{
+		"Name": "Jump",
+		"EffectType": "Jump",
+		"EffectStrength": 600,
+		"EffectDescription": "Jump up"
+	},
+	{
+		"Name": "Power",
+		"EffectType": "Power",
+		"EffectStrength": 50,
+		"EffectDescription": "Power up"
+	},
+	{
+		"Name": "Invinsibility",
+		"EffectType": "Invinsibility",
+		"EffectStrength": 50,
+		"EffectDescription": "Take no damage"
+	}
+]
