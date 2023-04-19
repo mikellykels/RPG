@@ -509,3 +509,6 @@ FodyWeavers.xsd
 # Content
 Content/YI_NPC/*
 Content/AdvancedLocomotionV4/*
+Content/StarterContent/*
+Content/SteamPunkCollection/*
+Content/ThirdPerson/*
