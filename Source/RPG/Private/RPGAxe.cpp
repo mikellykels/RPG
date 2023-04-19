@@ -43,7 +43,7 @@ void ARPGAxe::OnInteract_Implementation(AActor* Caller)
 	//Destroy();
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(Caller))
 	{
-		AttachToComponent(RPGCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r_2HWeapon"));
+		AttachToComponent(RPGCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r_2H_Weapon"));
 		SetOwner(RPGCharacter);
 		Execute_EndFocus(this);
 		InteractionBox->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
