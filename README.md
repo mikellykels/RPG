@@ -1,2 +1,2 @@
 # RPG
- Final project for CG Spectrum Game Programming course
+ Final project for CG Spectrum Game Programming course  
