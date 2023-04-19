@@ -23,7 +23,7 @@ void ARPGPlayerController::SetupInputComponent()
 
 	if (InputComponent)
 	{
-		// Movement
+		// ** MOVEMENT ** //
 		InputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestJumpStart);
 		InputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &ARPGPlayerController::RequestJumpStop);
 
@@ -34,6 +34,9 @@ void ARPGPlayerController::SetupInputComponent()
 		InputComponent->BindAxis(TEXT("MoveRight"), this, &ARPGPlayerController::RequestMoveRight);
 		InputComponent->BindAxis(TEXT("LookUp"), this, &ARPGPlayerController::RequestLookUp);
 		InputComponent->BindAxis(TEXT("LookRight"), this, &ARPGPlayerController::RequestLookRight);
+
+		// ** INTERACT ** //
+		InputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::InteractPressed);
 	}
 }
 
@@ -99,5 +102,13 @@ void ARPGPlayerController::RequestLookRight(float AxisValue)
 {
 	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
 }
+void ARPGPlayerController::InteractPressed()
+{
+	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
+	{
+		RPGCharacter->InteractPressed();
+	}
+}
+
 
 
