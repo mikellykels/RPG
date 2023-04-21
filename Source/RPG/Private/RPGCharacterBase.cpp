@@ -74,6 +74,7 @@ void ARPGCharacterBase::TraceForward_Implementation()
 				{
 					Interface->Execute_StartFocus(Interactable);
 				}
+
 				FocusedActor = Interactable;
 			}
 		}

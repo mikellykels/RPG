@@ -3,67 +3,62 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
 #include "Engine/DataTable.h"
-#include "RPGDataTable.generated.h"
+#include "GameFramework/Actor.h"
+#include "RPGWeaponData.generated.h"
 
 UENUM(BlueprintType)
-enum class EEffectType : uint8
+enum class EStance : uint8
 {
-	None          UMETA(DisplayName = "None"),
-	Speed         UMETA(DisplayName = "SpeedBuff"),
-	Jump          UMETA(DisplayName = "JumpBuff"),
-	Power         UMETA(DisplayName = "PowerBuff"),
-	Invinsibility UMETA(DisplayName = "InvBuff"),
+	Unequip       UMETA(DisplayName = "Unequip"),
+	GreatAxe      UMETA(DisplayName = "GreatAxe"),
 };
 
 USTRUCT(BlueprintType)
-struct FEffectStats : public FTableRowBase
+struct FWeaponData : public FTableRowBase
 {
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EEffectType EffectType;
+	FString Name = "";
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float EffectStrength = 0.0f;
+	FString WeaponDescription = "";
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	FString EffectDescription = "";
+	EStance Stance;
 };
 
 UCLASS()
-class RPG_API ARPGDataTable : public AActor
+class RPG_API ARPGWeaponData : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	// Sets default values for this actor's properties
-	ARPGDataTable();
+	ARPGWeaponData();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data")
-	class UDataTable* EffectsTable;
-
-	// BP
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	EEffectType SelectedEffectBP = EEffectType::None;
-	// C++
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	FName SelectedEffect = "";
+	class UDataTable* WeaponDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	EEffectType EffectType = EEffectType::None;
+	FName SelectedWeaponData = "";
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	float EffectStrength = 0;
+	FString Name = "";
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
-	FString Description = "";
+	FString WeaponDescription = "";
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
+	EStance Stance = EStance::Unequip;
+
 };
-
