@@ -61,6 +61,9 @@ protected:
 	FOnMontageEnded MontageEndedDelegate;
 
 	UFUNCTION()
+	void DisableWalk();
+
+	UFUNCTION()
 	void EnableWalk();
 
 public:	
