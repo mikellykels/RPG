@@ -3,6 +3,7 @@
 
 #include "RPGCharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -18,6 +19,8 @@ ARPGCharacterBase::ARPGCharacterBase()
 void ARPGCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MoveCompRef = GetCharacterMovement();
 }
 
 void ARPGCharacterBase::InteractPressed()
@@ -26,12 +29,47 @@ void ARPGCharacterBase::InteractPressed()
 	if (FocusedActor)
 	{
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(FocusedActor);
+		Axe = Cast<ARPGAxe>(FocusedActor);
 		if (Interface)
 		{
-			Interface->Execute_OnInteract(FocusedActor, this);
-			GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
-			GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+			if (Axe)
+			{
+				CharacterWeaponEquipped = ECharacterWeaponEquipped::GreatAxe;
+				Interface->Execute_OnInteract(FocusedActor, this);
+				GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
+				GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+			}
 		}
+	}
+}
+
+void ARPGCharacterBase::RequestLightAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Light Attack"));
+	if (CharacterWeaponEquipped == ECharacterWeaponEquipped::GreatAxe)
+	{
+		if (PlayAttackMontage())
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Played Montage"));
+		}
+	}
+}
+
+void ARPGCharacterBase::TraceStartFocus(AActor* TraceActor)
+{
+	IInteractionInterface* Interface = Cast<IInteractionInterface>(TraceActor);
+	if (Interface)
+	{
+		Interface->Execute_StartFocus(TraceActor);
+	}
+}
+
+void ARPGCharacterBase::TraceEndFocus(AActor* TraceActor)
+{
+	IInteractionInterface* Interface = Cast<IInteractionInterface>(TraceActor);
+	if (Interface)
+	{
+		Interface->Execute_EndFocus(TraceActor);
 	}
 }
 
@@ -63,18 +101,9 @@ void ARPGCharacterBase::TraceForward_Implementation()
 			{
 				if (FocusedActor)
 				{
-					IInteractionInterface* Interface = Cast<IInteractionInterface>(FocusedActor);
-					if (Interface)
-					{
-						Interface->Execute_EndFocus(FocusedActor);
-					}
+					TraceEndFocus(FocusedActor);
 				}
-				IInteractionInterface* Interface = Cast<IInteractionInterface>(Interactable);
-				if (Interface)
-				{
-					Interface->Execute_StartFocus(Interactable);
-				}
-
+				TraceStartFocus(Interactable);
 				FocusedActor = Interactable;
 			}
 		}
@@ -82,14 +111,99 @@ void ARPGCharacterBase::TraceForward_Implementation()
 		{
 			if (FocusedActor)
 			{
-				IInteractionInterface* Interface = Cast<IInteractionInterface>(FocusedActor);
-				if (Interface)
-				{
-					Interface->Execute_EndFocus(FocusedActor);
-				}
+				TraceEndFocus(FocusedActor);
 			}
 			FocusedActor = nullptr;
 		}
+	}
+	else
+	{
+		TraceEndFocus(FocusedActor);
+		FocusedActor = nullptr;
+	}
+}
+
+bool ARPGCharacterBase::PlayAttackMontage()
+{
+	const float PlayRate = 1.0f;
+	bool bPlayedSuccessfully = PlayAnimMontage(AttackMontage, PlayRate) > 0.0f;
+	if (bPlayedSuccessfully)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		DisableWalk();
+
+		if (!BlendingOutDelegate.IsBound())
+		{
+			BlendingOutDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageBlendingOut);
+		}
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, AttackMontage);
+
+		if (!MontageEndedDelegate.IsBound())
+		{
+			MontageEndedDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageEnded);
+		}
+		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
+
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ARPGCharacterBase::OnNotifyBeginRecieved);
+		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &ARPGCharacterBase::OnNotifyEndRecieved);
+		return bPlayedSuccessfully;
+	}
+
+	return bPlayedSuccessfully;
+}
+
+void ARPGCharacterBase::UnbindMontage()
+{
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->OnPlayMontageNotifyBegin.RemoveDynamic(this, &ARPGCharacterBase::OnNotifyBeginRecieved);
+		AnimInstance->OnPlayMontageNotifyEnd.RemoveDynamic(this, &ARPGCharacterBase::OnNotifyEndRecieved);
+	}
+}
+
+void ARPGCharacterBase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterrupted)
+{
+}
+
+void ARPGCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	EnableWalk();
+	UnbindMontage();
+}
+
+void ARPGCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
+	// Set up attack hit point
+}
+
+void ARPGCharacterBase::OnNotifyEndRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
+}
+
+void ARPGCharacterBase::DisableWalk()
+{
+	if (MoveCompRef)
+	{
+		MoveCompRef->DisableMovement();
+	}
+	else
+	{
+		UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+		MoveComp->DisableMovement();
+	}
+}
+
+void ARPGCharacterBase::EnableWalk()
+{
+	if (MoveCompRef)
+	{
+		MoveCompRef->SetMovementMode(MOVE_Walking);
+	}
+	else
+	{
+		UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+		MoveComp->SetMovementMode(MOVE_Walking);
 	}
 }
 

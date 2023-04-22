@@ -46,14 +46,14 @@ void ARPGAxe::OnInteract_Implementation(AActor* Caller)
 		AttachToComponent(RPGCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r_2H_Weapon"));
 		SetOwner(RPGCharacter);
 		Execute_EndFocus(this);
-		InteractionBox->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
+		InteractionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AxeMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	}
 }
 
 void ARPGAxe::StartFocus_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("Start focus"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Start focus"));
 	if (State != EState::Equipped)
 	{
 		InteractionWidget->SetVisibility(true);
@@ -62,7 +62,7 @@ void ARPGAxe::StartFocus_Implementation()
 
 void ARPGAxe::EndFocus_Implementation()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("End focus"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("End focus"));
 	InteractionWidget->SetVisibility(false);
 }
 

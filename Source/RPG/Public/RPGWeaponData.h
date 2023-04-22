@@ -60,5 +60,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Data")
 	EStance Stance = EStance::Unequip;
-
 };
