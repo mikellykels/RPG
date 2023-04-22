@@ -28,13 +28,13 @@ ARPGAxe::ARPGAxe()
 void ARPGAxe::BeginPlay()
 {
 	Super::BeginPlay();
+	InteractionWidget->SetVisibility(false);
 }
 
 // Called every frame
 void ARPGAxe::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ARPGAxe::OnInteract_Implementation(AActor* Caller)

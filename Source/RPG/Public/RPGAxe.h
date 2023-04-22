@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBoxComponent* InteractionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	UWidgetComponent* InteractionWidget;
+
 	enum class EState
 	{
 		Idle,
@@ -59,9 +62,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Mesh");
 	USkeletalMeshComponent* AxeMesh;
-
-	UPROPERTY(EditAnywhere, Category = "Interaction")
-	UWidgetComponent* InteractionWidget;
 
 	EState State = EState::Idle;
 
