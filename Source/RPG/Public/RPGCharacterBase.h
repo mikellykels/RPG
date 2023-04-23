@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InteractionInterface.h"
+#include "HUDWidget.h"
 #include "RPGAxe.h"
 #include "RPGCharacterBase.generated.h"
+
+class URPGPlayerStats;
 
 UENUM(BlueprintType)
 enum class ECharacterWeaponEquipped : uint8
@@ -27,6 +30,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void DisplayHUDWidget();
+
+	void UpdateStamina();
+
+	// TODO: Clean this up once implemented in code
+	UFUNCTION(BlueprintCallable)
+	void UpdateHealthBar();
+
+	// TODO: Clean this up once implemented in code
+	UFUNCTION(BlueprintCallable)
+	void UpdateStaminaBar();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction");
 	float TraceDistance;
@@ -66,6 +81,14 @@ protected:
 	UFUNCTION()
 	void EnableWalk();
 
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float SprintSpeed = 1200.0f;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Movement")
+	float DefaultWalkSpeed = 0.0f;
+
+	bool bIsSprinting = false;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -73,9 +96,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void RequestSprintStart();
+	void RequestSprintStop();
+
 	void InteractPressed();
 
 	void RequestLightAttack();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	URPGPlayerStats* RPGPlayerStatsComponent;
 
 private:
 
@@ -89,4 +118,12 @@ private:
 	FTimerHandle MovementTimer;
 
 	UCharacterMovementComponent* MoveCompRef = nullptr;
+
+	URPGPlayerStats* PlayerStatsCompRef = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+	TSubclassOf<UUserWidget> HUDWidgetClass = nullptr;
+
+	UPROPERTY()
+	UHUDWidget* HUDWidget;
 };

@@ -3,7 +3,12 @@
 
 #include "RPGCharacterBase.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "RPGPlayerController.h"
+#include "RPGPlayerStats.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -11,6 +16,8 @@ ARPGCharacterBase::ARPGCharacterBase()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	RPGPlayerStatsComponent = CreateDefaultSubobject<URPGPlayerStats>(TEXT("Player Stats Comp"));
 
 	TraceDistance = 2000;
 }
@@ -21,6 +28,105 @@ void ARPGCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	MoveCompRef = GetCharacterMovement();
+	PlayerStatsCompRef = Cast<URPGPlayerStats>(RPGPlayerStatsComponent);
+
+	if (GetController()->GetCharacter())
+	{
+		DefaultWalkSpeed = GetController()->GetCharacter()->GetCharacterMovement()->MaxWalkSpeed;
+	}
+
+	DisplayHUDWidget();
+}
+
+// Called every frame
+void ARPGCharacterBase::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	TraceForward();
+	UpdateStamina();
+}
+
+// Called to bind functionality to input
+void ARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void ARPGCharacterBase::DisplayHUDWidget()
+{
+	if (IsValid(HUDWidgetClass))
+	{
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		HUDWidget = CreateWidget<UHUDWidget>(PlayerController, HUDWidgetClass);
+		if (HUDWidget)
+		{
+			HUDWidget->AddToViewport();
+		}
+	}
+}
+
+void ARPGCharacterBase::UpdateStamina()
+{
+	if (HUDWidget)
+	{
+		if (bIsSprinting)
+		{
+			RPGPlayerStatsComponent->DecreaseStamina();
+			UpdateStaminaBar();
+		}
+		else
+		{
+			// TODO: add delay for stamina increasing after stop sprinting
+			RPGPlayerStatsComponent->IncreaseStamina();
+			UpdateStaminaBar();
+		}
+	}
+}
+
+void ARPGCharacterBase::UpdateHealthBar()
+{
+	if (HUDWidget)
+	{
+		if (PlayerStatsCompRef)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("UpdateHealth"));
+			FString CurrentHealth = FString::SanitizeFloat(RPGPlayerStatsComponent->GetCurrentHealth(), 0);
+			HUDWidget->HealthBar->SetPercent(RPGPlayerStatsComponent->GetCurrentHealth() / RPGPlayerStatsComponent->GetMaxHealth());
+			HUDWidget->HealthText->SetText(FText::FromString(CurrentHealth));
+		}
+	}
+}
+
+void ARPGCharacterBase::UpdateStaminaBar()
+{
+	if (HUDWidget)
+	{
+		if (PlayerStatsCompRef)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateStamina"));
+			HUDWidget->StaminaBar->SetPercent(RPGPlayerStatsComponent->GetCurrentStamina() / RPGPlayerStatsComponent->GetMaxStamina());
+		}
+	}
+}
+
+void ARPGCharacterBase::RequestSprintStart()
+{
+	if (GetController()->GetCharacter())
+	{
+		bIsSprinting = true;
+		GetController()->GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+	}
+}
+
+void ARPGCharacterBase::RequestSprintStop()
+{
+	if (GetController()->GetCharacter())
+	{
+		bIsSprinting = false;
+		GetController()->GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+	}
 }
 
 void ARPGCharacterBase::InteractPressed()
@@ -205,21 +311,5 @@ void ARPGCharacterBase::EnableWalk()
 		UCharacterMovementComponent* MoveComp = GetCharacterMovement();
 		MoveComp->SetMovementMode(MOVE_Walking);
 	}
-}
-
-// Called every frame
-void ARPGCharacterBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	TraceForward();
-
-}
-
-// Called to bind functionality to input
-void ARPGCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 

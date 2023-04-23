@@ -10,11 +10,6 @@
 void ARPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (GetCharacter())
-	{
-		DefaultWalkSpeed = GetCharacter()->GetCharacterMovement()->MaxWalkSpeed;
-	}
 }
 
 void ARPGPlayerController::SetupInputComponent()
@@ -62,17 +57,17 @@ void ARPGPlayerController::RequestJumpStop()
 
 void ARPGPlayerController::RequestSprintStart()
 {
-	if (GetCharacter())
+	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+		RPGCharacter->RequestSprintStart();
 	}
 }
 
 void ARPGPlayerController::RequestSprintStop()
 {
-	if (GetCharacter())
+	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
-		GetCharacter()->GetCharacterMovement()->MaxWalkSpeed = DefaultWalkSpeed;
+		RPGCharacter->RequestSprintStop();
 	}
 }
 

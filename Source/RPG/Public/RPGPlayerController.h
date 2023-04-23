@@ -42,11 +42,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Look")
 	float BaseLookRightRate = 90.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float SprintSpeed = 1200.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Movement")
-	float DefaultWalkSpeed = 0.0f;
 	
 };
