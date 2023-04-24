@@ -56,7 +56,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* AttackMontage = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* DeathMontage = nullptr;
+
 	bool PlayAttackMontage();
+	bool PlayDeathMontage();
 
 	void UnbindMontage();
 

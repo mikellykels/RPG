@@ -40,7 +40,7 @@ public:
 	float MaxHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Stamina")
-	float CurrentStamina = 70.0f;
+	float CurrentStamina = 100.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Stamina")
 	float MaxStamina = 100.0f;

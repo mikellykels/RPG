@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "RPGPlayerController.h"
 #include "RPGPlayerStats.h"
 #include "DrawDebugHelpers.h"
@@ -74,6 +75,12 @@ void ARPGCharacterBase::UpdateStamina()
 		if (bIsSprinting)
 		{
 			RPGPlayerStatsComponent->DecreaseStamina();
+			float CurrentStamina = RPGPlayerStatsComponent->GetCurrentStamina();
+			
+			if (CurrentStamina <= 0)
+			{
+				RequestSprintStop();
+			}
 			UpdateStaminaBar();
 		}
 		else
@@ -89,12 +96,24 @@ void ARPGCharacterBase::UpdateHealthBar()
 {
 	if (HUDWidget)
 	{
+		float CurrentHealth = RPGPlayerStatsComponent->GetCurrentHealth();
+		float MaxHealth = RPGPlayerStatsComponent->GetMaxHealth();
+		
+		if (CurrentHealth <= 0)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
+			if (PlayDeathMontage())
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Played Death Montage"));
+			}
+		}
+
 		if (PlayerStatsCompRef)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("UpdateHealth"));
-			FString CurrentHealth = FString::SanitizeFloat(RPGPlayerStatsComponent->GetCurrentHealth(), 0);
-			HUDWidget->HealthBar->SetPercent(RPGPlayerStatsComponent->GetCurrentHealth() / RPGPlayerStatsComponent->GetMaxHealth());
-			HUDWidget->HealthText->SetText(FText::FromString(CurrentHealth));
+			FString CurrentHealthStr = FString::SanitizeFloat(CurrentHealth, 0);
+			HUDWidget->HealthBar->SetPercent(CurrentHealth / MaxHealth);
+			HUDWidget->HealthText->SetText(FText::FromString(CurrentHealthStr));
 		}
 	}
 }
@@ -103,10 +122,12 @@ void ARPGCharacterBase::UpdateStaminaBar()
 {
 	if (HUDWidget)
 	{
-		if (PlayerStatsCompRef)
+		float CurrentStamina = RPGPlayerStatsComponent->GetCurrentStamina();
+		float MaxStamina = RPGPlayerStatsComponent->GetMaxStamina();
+		if (PlayerStatsCompRef && (CurrentStamina < MaxStamina))
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateStamina"));
-			HUDWidget->StaminaBar->SetPercent(RPGPlayerStatsComponent->GetCurrentStamina() / RPGPlayerStatsComponent->GetMaxStamina());
+			HUDWidget->StaminaBar->SetPercent(CurrentStamina / MaxStamina);
 		}
 	}
 }
@@ -152,6 +173,11 @@ void ARPGCharacterBase::InteractPressed()
 void ARPGCharacterBase::RequestLightAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Light Attack"));
+	if (bIsSprinting)
+	{
+		bIsSprinting = false;
+	}
+
 	if (CharacterWeaponEquipped == ECharacterWeaponEquipped::GreatAxe)
 	{
 		if (PlayAttackMontage())
@@ -259,6 +285,34 @@ bool ARPGCharacterBase::PlayAttackMontage()
 	return bPlayedSuccessfully;
 }
 
+bool ARPGCharacterBase::PlayDeathMontage()
+{
+	const float PlayRate = 1.0f;
+	bool bPlayedSuccessfully = PlayAnimMontage(DeathMontage, PlayRate) > 0.0f;
+	if (bPlayedSuccessfully)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (!BlendingOutDelegate.IsBound())
+		{
+			BlendingOutDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageBlendingOut);
+		}
+		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, DeathMontage);
+
+		if (!MontageEndedDelegate.IsBound())
+		{
+			MontageEndedDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageEnded);
+		}
+		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, DeathMontage);
+
+		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ARPGCharacterBase::OnNotifyBeginRecieved);
+		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &ARPGCharacterBase::OnNotifyEndRecieved);
+		return bPlayedSuccessfully;
+	}
+
+	return bPlayedSuccessfully;
+}
+
 void ARPGCharacterBase::UnbindMontage()
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
@@ -274,17 +328,30 @@ void ARPGCharacterBase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterr
 
 void ARPGCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	EnableWalk();
-	UnbindMontage();
+	if (Montage == AttackMontage)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("ATTTTAACCCk"));
+		EnableWalk();
+		UnbindMontage();
+	}
 }
 
 void ARPGCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
 {
 	// Set up attack hit point
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY BEGIN"));
+	if (NotifyName == FName("DeathStart"))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("DeathEnd"));
+		DisableWalk();
+		// TODO: Add menu on death
+	}
 }
 
 void ARPGCharacterBase::OnNotifyEndRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY END"));
 }
 
 void ARPGCharacterBase::DisableWalk()
