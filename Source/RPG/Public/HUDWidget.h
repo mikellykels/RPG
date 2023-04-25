@@ -19,6 +19,7 @@ class RPG_API UHUDWidget : public UUserWidget
 
 public:
 
+	// ** HEALTH AND STAMINA ** //
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* HealthBar;
 
@@ -28,4 +29,13 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HealthText;
 	
+	// ** Level and XP ** //
+	UPROPERTY(meta = (BindWidget))
+	UProgressBar* XPBar;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LevelText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* XPText;
 };

@@ -32,8 +32,9 @@ protected:
 	virtual void BeginPlay() override;
 
 	void DisplayHUDWidget();
-
 	void UpdateStamina();
+	void UpdateXPText();
+	void UpdateLevelText();
 
 	// TODO: Clean this up once implemented in code
 	UFUNCTION(BlueprintCallable)
@@ -42,6 +43,10 @@ protected:
 	// TODO: Clean this up once implemented in code
 	UFUNCTION(BlueprintCallable)
 	void UpdateStaminaBar();
+
+	// TODO: Clean this up once implemented in code
+	UFUNCTION(BlueprintCallable)
+	void UpdateXPBar();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction");
 	float TraceDistance;
@@ -86,7 +91,7 @@ protected:
 	void EnableWalk();
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	float SprintSpeed = 1200.0f;
+	float SprintSpeed = 500.0f;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float DefaultWalkSpeed = 0.0f;

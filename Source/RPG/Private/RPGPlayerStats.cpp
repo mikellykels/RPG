@@ -13,7 +13,6 @@ URPGPlayerStats::URPGPlayerStats()
 	// ...
 }
 
-
 // Called when the game starts
 void URPGPlayerStats::BeginPlay()
 {
@@ -23,6 +22,13 @@ void URPGPlayerStats::BeginPlay()
 	
 }
 
+// Called every frame
+void URPGPlayerStats::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
 
 void URPGPlayerStats::DecreaseHealth()
 {
@@ -60,11 +66,26 @@ float URPGPlayerStats::GetMaxStamina()
 	return MaxStamina;
 }
 
+float URPGPlayerStats::GetCurrentXP()
+{
+	return XP;
+}
+
+float URPGPlayerStats::GetMaxXP()
+{
+	return MaxXP;
+}
+
+int URPGPlayerStats::GetCurrentLevel()
+{
+	return Level;
+}
+
 void URPGPlayerStats::DecreaseStamina()
 {
 	if (CurrentStamina > 0)
 	{
-		CurrentStamina = CurrentStamina - StaminaDepleted;
+		CurrentStamina = CurrentStamina - DepletedStamina;
 	}
 }
 
@@ -72,7 +93,7 @@ void URPGPlayerStats::IncreaseStamina()
 {
 	if (CurrentStamina <= MaxStamina)
 	{
-		CurrentStamina = CurrentStamina + StaminaAdded;
+		CurrentStamina = CurrentStamina + AddedStamina;
 	}
 }
 
@@ -80,11 +101,20 @@ void URPGPlayerStats::IncreaseMaxStamina()
 {
 }
 
-// Called every frame
-void URPGPlayerStats::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void URPGPlayerStats::IncreaseXP()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	XP = XP + AddedXP;
+	if (XP >= MaxXP)
+	{
+		IncreaseLevel();
+		XP = 0;
+	}
 }
+
+void URPGPlayerStats::IncreaseLevel()
+{
+	Level = Level + 1;
+	MaxXP = MaxXP + 150;
+}
+
 

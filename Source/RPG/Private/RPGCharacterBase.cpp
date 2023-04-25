@@ -12,6 +12,8 @@
 #include "RPGPlayerStats.h"
 #include "DrawDebugHelpers.h"
 
+#define LOCTEXT_NAMESPACE "HUD"
+
 // Sets default values
 ARPGCharacterBase::ARPGCharacterBase()
 {
@@ -46,6 +48,11 @@ void ARPGCharacterBase::Tick(float DeltaTime)
 
 	TraceForward();
 	UpdateStamina();
+
+	// TODO: See if can move out of tick
+	UpdateXPBar();
+	UpdateXPText();
+	UpdateLevelText();
 }
 
 // Called to bind functionality to input
@@ -92,6 +99,33 @@ void ARPGCharacterBase::UpdateStamina()
 	}
 }
 
+void ARPGCharacterBase::UpdateXPText()
+{
+	if (HUDWidget)
+	{
+		if (PlayerStatsCompRef)
+		{
+			float CurrentXP = RPGPlayerStatsComponent->GetCurrentXP();
+			float MaxXP = RPGPlayerStatsComponent->GetMaxXP();
+			FText FormattedText = FText::Format(LOCTEXT("XPText", "{0} / {1}"), CurrentXP, MaxXP);
+			HUDWidget->XPText->SetText(FormattedText);
+			UpdateXPBar();
+		}
+	}
+}
+
+void ARPGCharacterBase::UpdateLevelText()
+{
+	if (HUDWidget)
+	{
+		if (PlayerStatsCompRef)
+		{
+			int CurrentLevel = RPGPlayerStatsComponent->GetCurrentLevel();
+			HUDWidget->LevelText->SetText(FText::AsNumber(CurrentLevel));
+		}
+	}
+}
+
 void ARPGCharacterBase::UpdateHealthBar()
 {
 	if (HUDWidget)
@@ -126,8 +160,22 @@ void ARPGCharacterBase::UpdateStaminaBar()
 		float MaxStamina = RPGPlayerStatsComponent->GetMaxStamina();
 		if (PlayerStatsCompRef && (CurrentStamina < MaxStamina))
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateStamina"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateStamina"));
 			HUDWidget->StaminaBar->SetPercent(CurrentStamina / MaxStamina);
+		}
+	}
+}
+
+void ARPGCharacterBase::UpdateXPBar()
+{
+	if (HUDWidget)
+	{
+		float CurrentXP = RPGPlayerStatsComponent->GetCurrentXP();
+		float MaxXP = RPGPlayerStatsComponent->GetMaxXP();
+		if (PlayerStatsCompRef)
+		{
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateXPBar"));
+			HUDWidget->XPBar->SetPercent(CurrentXP / MaxXP);
 		}
 	}
 }
@@ -172,7 +220,6 @@ void ARPGCharacterBase::InteractPressed()
 
 void ARPGCharacterBase::RequestLightAttack()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Light Attack"));
 	if (bIsSprinting)
 	{
 		bIsSprinting = false;
@@ -293,12 +340,6 @@ bool ARPGCharacterBase::PlayDeathMontage()
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
-		if (!BlendingOutDelegate.IsBound())
-		{
-			BlendingOutDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageBlendingOut);
-		}
-		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, DeathMontage);
-
 		if (!MontageEndedDelegate.IsBound())
 		{
 			MontageEndedDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageEnded);
@@ -330,9 +371,13 @@ void ARPGCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 	if (Montage == AttackMontage)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("ATTTTAACCCk"));
 		EnableWalk();
 		UnbindMontage();
+	}
+
+	if (Montage == DeathMontage)
+	{
+
 	}
 }
 
@@ -340,11 +385,13 @@ void ARPGCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBranching
 {
 	// Set up attack hit point
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY BEGIN"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY BEGIN"));
 	if (NotifyName == FName("DeathStart"))
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("DeathEnd"));
 		DisableWalk();
+		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		PlayerController->SetInputMode(FInputModeUIOnly());
+		PlayerController->SetShowMouseCursor(true);
 		// TODO: Add menu on death
 	}
 }
@@ -379,4 +426,6 @@ void ARPGCharacterBase::EnableWalk()
 		MoveComp->SetMovementMode(MOVE_Walking);
 	}
 }
+
+#undef LOCTEXT_NAMESPACE
 
