@@ -35,7 +35,7 @@ protected:
 
 	void InteractPressed();
 
-	void RequestLightAttack();
+	void RequestAttack();
 
 	UPROPERTY(EditAnywhere, Category = "Look")
 	float BaseLookUpRate = 90.0f;

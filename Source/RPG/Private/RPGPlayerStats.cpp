@@ -2,6 +2,7 @@
 
 
 #include "RPGPlayerStats.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values for this component's properties
 URPGPlayerStats::URPGPlayerStats()
@@ -113,6 +114,10 @@ void URPGPlayerStats::IncreaseXP()
 
 void URPGPlayerStats::IncreaseLevel()
 {
+	if (LevelUpSound)
+	{
+		UGameplayStatics::PlaySound2D(this, LevelUpSound);
+	}
 	Level = Level + 1;
 	MaxXP = MaxXP + 150;
 }

@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "RPGAttackSystem.h"
 #include "RPGPlayerController.h"
 #include "RPGPlayerStats.h"
 #include "DrawDebugHelpers.h"
@@ -21,6 +22,7 @@ ARPGCharacterBase::ARPGCharacterBase()
 	PrimaryActorTick.bCanEverTick = true;
 
 	RPGPlayerStatsComponent = CreateDefaultSubobject<URPGPlayerStats>(TEXT("Player Stats Comp"));
+	RPGAttackSystemComponent = CreateDefaultSubobject<URPGAttackSystem>(TEXT("Attack System Comp"));
 
 	TraceDistance = 2000;
 }
@@ -218,19 +220,11 @@ void ARPGCharacterBase::InteractPressed()
 	}
 }
 
-void ARPGCharacterBase::RequestLightAttack()
+void ARPGCharacterBase::RequestAttack()
 {
-	if (bIsSprinting)
-	{
-		bIsSprinting = false;
-	}
-
 	if (CharacterWeaponEquipped == ECharacterWeaponEquipped::GreatAxe)
 	{
-		if (PlayAttackMontage())
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Played Montage"));
-		}
+		RPGAttackSystemComponent->AxeAttack();
 	}
 }
 
@@ -302,36 +296,6 @@ void ARPGCharacterBase::TraceForward_Implementation()
 	}
 }
 
-bool ARPGCharacterBase::PlayAttackMontage()
-{
-	const float PlayRate = 1.0f;
-	bool bPlayedSuccessfully = PlayAnimMontage(AttackMontage, PlayRate) > 0.0f;
-	if (bPlayedSuccessfully)
-	{
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-
-		DisableWalk();
-
-		if (!BlendingOutDelegate.IsBound())
-		{
-			BlendingOutDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageBlendingOut);
-		}
-		AnimInstance->Montage_SetBlendingOutDelegate(BlendingOutDelegate, AttackMontage);
-
-		if (!MontageEndedDelegate.IsBound())
-		{
-			MontageEndedDelegate.BindUObject(this, &ARPGCharacterBase::OnMontageEnded);
-		}
-		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, AttackMontage);
-
-		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ARPGCharacterBase::OnNotifyBeginRecieved);
-		AnimInstance->OnPlayMontageNotifyEnd.AddDynamic(this, &ARPGCharacterBase::OnNotifyEndRecieved);
-		return bPlayedSuccessfully;
-	}
-
-	return bPlayedSuccessfully;
-}
-
 bool ARPGCharacterBase::PlayDeathMontage()
 {
 	const float PlayRate = 1.0f;
@@ -369,29 +333,33 @@ void ARPGCharacterBase::OnMontageBlendingOut(UAnimMontage* Montage, bool bInterr
 
 void ARPGCharacterBase::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
-	if (Montage == AttackMontage)
-	{
-		EnableWalk();
-		UnbindMontage();
-	}
-
-	if (Montage == DeathMontage)
-	{
-
-	}
 }
 
 void ARPGCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
 {
-	// Set up attack hit point
+	// TODO: Set up attack hit point
 
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY BEGIN"));
+	if (NotifyName == FName("AttackAGrunt"))
+	{
+		if (AttackASound && GetOwner())
+		{
+			FVector CharacterLocation = GetOwner()->GetActorLocation();
+			UGameplayStatics::PlaySoundAtLocation(this, AttackASound, CharacterLocation);
+		}
+	}
+
 	if (NotifyName == FName("DeathStart"))
 	{
 		DisableWalk();
 		APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 		PlayerController->SetInputMode(FInputModeUIOnly());
 		PlayerController->SetShowMouseCursor(true);
+		//SoundCue Triggers
+		if (DeathSound && GetOwner())
+		{
+			FVector CharacterLocation = GetOwner()->GetActorLocation();
+			UGameplayStatics::PlaySoundAtLocation(this, DeathSound, CharacterLocation);
+		}
 		// TODO: Add menu on death
 	}
 }

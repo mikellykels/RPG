@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Sound/SoundCue.h"
 #include "RPGPlayerStats.generated.h"
 
 
@@ -19,6 +20,9 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* LevelUpSound = nullptr;
 
 public:	
 	// Called every frame

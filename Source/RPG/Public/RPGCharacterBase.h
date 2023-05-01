@@ -7,9 +7,11 @@
 #include "InteractionInterface.h"
 #include "HUDWidget.h"
 #include "RPGAxe.h"
+#include "Sound/SoundCue.h"
 #include "RPGCharacterBase.generated.h"
 
 class URPGPlayerStats;
+class URPGAttackSystem;
 
 UENUM(BlueprintType)
 enum class ECharacterWeaponEquipped : uint8
@@ -64,7 +66,6 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	UAnimMontage* DeathMontage = nullptr;
 
-	bool PlayAttackMontage();
 	bool PlayDeathMontage();
 
 	void UnbindMontage();
@@ -83,6 +84,12 @@ protected:
 
 	FOnMontageBlendingOutStarted BlendingOutDelegate;
 	FOnMontageEnded MontageEndedDelegate;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* DeathSound = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* AttackASound = nullptr;
 
 	UFUNCTION()
 	void DisableWalk();
@@ -110,10 +117,13 @@ public:
 
 	void InteractPressed();
 
-	void RequestLightAttack();
+	void RequestAttack();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	URPGPlayerStats* RPGPlayerStatsComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	URPGAttackSystem* RPGAttackSystemComponent;
 
 private:
 
@@ -123,8 +133,6 @@ private:
 
 	void TraceStartFocus(AActor* TraceActor);
 	void TraceEndFocus(AActor* TraceActor);
-
-	FTimerHandle MovementTimer;
 
 	UCharacterMovementComponent* MoveCompRef = nullptr;
 

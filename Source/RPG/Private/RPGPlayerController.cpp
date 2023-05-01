@@ -34,7 +34,7 @@ void ARPGPlayerController::SetupInputComponent()
 		InputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::InteractPressed);
 
 		// ** ATTACKS ** //
-		InputComponent->BindAction(TEXT("LightAttack"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestLightAttack);
+		InputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestAttack);
 	}
 }
 
@@ -108,11 +108,11 @@ void ARPGPlayerController::InteractPressed()
 	}
 }
 
-void ARPGPlayerController::RequestLightAttack()
+void ARPGPlayerController::RequestAttack()
 {
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
-		RPGCharacter->RequestLightAttack();
+		RPGCharacter->RequestAttack();
 	}
 }
 
