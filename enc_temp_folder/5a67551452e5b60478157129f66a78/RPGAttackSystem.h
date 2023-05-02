@@ -56,8 +56,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "FX")
 	UNiagaraSystem* HitSparks;
-	UPROPERTY(EditAnywhere, Category = "FX")
-	UNiagaraSystem* HitOil;
 
 	void UnbindMontage();
 

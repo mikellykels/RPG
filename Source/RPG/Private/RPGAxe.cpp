@@ -22,6 +22,11 @@ ARPGAxe::ARPGAxe()
 
 	InteractionWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Interaction Widget"));
 	InteractionWidget->SetupAttachment(RootComponent);
+
+	AxeLeftPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Axe Left Point"));
+	AxeLeftPoint->SetupAttachment(AxeMesh);
+	AxeRightPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Axe Right Point"));
+	AxeRightPoint->SetupAttachment(AxeMesh);
 }
 
 // Called when the game starts or when spawned

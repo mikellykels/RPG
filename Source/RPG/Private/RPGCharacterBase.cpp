@@ -366,7 +366,6 @@ void ARPGCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBranching
 
 void ARPGCharacterBase::OnNotifyEndRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, TEXT("NOTIFY END"));
 }
 
 void ARPGCharacterBase::DisableWalk()

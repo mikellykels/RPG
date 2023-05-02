@@ -44,11 +44,12 @@ void URPGAttackSystem::AxeTrace()
 	if (AttachedActors.Num() > 0)
 	{
 		AActor* AttachedAxe = AttachedActors[0];
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Attached"));
 		ARPGAxe* Axe = Cast<ARPGAxe>(AttachedAxe);
 		FVector AxeLeftPointLoc = Axe->AxeLeftPoint->GetComponentLocation();
 		FVector AxeRightPointLoc = Axe->AxeRightPoint->GetComponentLocation();
 		TArray<AActor*> ActorsToIgnore;
-		ActorsToIgnore.Add(GetOwner());
+		//ActorsToIgnore.Add(GetOwner());
 
 		FHitResult Hit;
 
@@ -75,13 +76,9 @@ void URPGAttackSystem::AxeTrace()
 				if (HitSparks)
 				{
 					float CoefStrength = 5.0f;
+					// This spawns the chosen effect on the owning WeaponMuzzle SceneComponent
 					UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(HitSparks, Axe->AxeLeftPoint, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
-					NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
-				}
-				if (HitOil)
-				{
-					float CoefStrength = 5.0f;
-					UNiagaraComponent* NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(HitOil, Axe->AxeLeftPoint, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+					// Parameters can be set like this (see documentation for further info) - the names and type must match the user exposed parameter in the Niagara System
 					NiagaraComp->SetNiagaraVariableFloat(FString("StrengthCoef"), CoefStrength);
 				}
 			}

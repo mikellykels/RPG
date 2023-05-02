@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
@@ -54,6 +55,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void EndFocus();
 	virtual void EndFocus_Implementation();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box")
+	UArrowComponent* AxeLeftPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box")
+	UArrowComponent* AxeRightPoint;
 
 private:
 
