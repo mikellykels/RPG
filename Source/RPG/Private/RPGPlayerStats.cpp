@@ -3,6 +3,8 @@
 
 #include "RPGPlayerStats.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 
 // Sets default values for this component's properties
 URPGPlayerStats::URPGPlayerStats()
@@ -31,7 +33,7 @@ void URPGPlayerStats::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	// ...
 }
 
-void URPGPlayerStats::DecreaseHealth()
+void URPGPlayerStats::DecreaseHealth(float Damage)
 {
 	if (CurrentHealth > 0)
 	{

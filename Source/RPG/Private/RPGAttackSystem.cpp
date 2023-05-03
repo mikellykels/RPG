@@ -4,6 +4,7 @@
 #include "RPGAttackSystem.h"
 #include "RPGAxe.h"
 #include "RPGCharacterBase.h"
+#include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "NiagaraFunctionLibrary.h"
@@ -66,7 +67,7 @@ void URPGAttackSystem::AxeTrace()
 			{
 				TSubclassOf <UDamageType> DamageType;
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("HITHIT!"));
-				UGameplayStatics::ApplyDamage(EnemyHit, 10.0f, CharacterBase->GetController(), Axe, DamageType);
+				EnemyHit->TakeDamage(10.0f, FDamageEvent(), CharacterBase->GetController(), Axe);
 				bEnemyHit = true;
 			}
 			if (bEnemyHit)

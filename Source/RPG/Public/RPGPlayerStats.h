@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Sound/SoundCue.h"
+#include "EnemyHealthBarWidget.h"
 #include "RPGPlayerStats.generated.h"
 
 
@@ -28,10 +29,6 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// ** DAMAGE ** //
-	UPROPERTY(EditAnywhere, Category = "Damage")
-	float Damage = 10.0f;
-
 	// ** HEALTH ** //
 	UPROPERTY(EditAnywhere, Category = "Health")
 	float CurrentHealth = 100.0f;
@@ -39,7 +36,7 @@ public:
 	float MaxHealth = 100.0f;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-	void DecreaseHealth();
+	void DecreaseHealth(float Damage);
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void IncreaseHealth();
 	UFUNCTION(BlueprintCallable, Category = "Health")
