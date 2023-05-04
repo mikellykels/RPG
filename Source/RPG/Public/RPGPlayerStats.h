@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Delegates/Delegate.h"
 #include "Sound/SoundCue.h"
 #include "EnemyHealthBarWidget.h"
 #include "RPGPlayerStats.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_API URPGPlayerStats : public UActorComponent
@@ -28,6 +30,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	// ** DELEGATES ** //
+	UPROPERTY(BlueprintAssignable, Category = "Death")
+	FDeathDelegate OnDeathDelegate;
 
 	// ** HEALTH ** //
 	UPROPERTY(EditAnywhere, Category = "Health")

@@ -67,7 +67,7 @@ void URPGAttackSystem::AxeTrace()
 			{
 				TSubclassOf <UDamageType> DamageType;
 				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("HITHIT!"));
-				EnemyHit->TakeDamage(10.0f, FDamageEvent(), CharacterBase->GetController(), Axe);
+				EnemyHit->TakeDamage(25.0f, FDamageEvent(), CharacterBase->GetController(), Axe);
 				bEnemyHit = true;
 			}
 			if (bEnemyHit)

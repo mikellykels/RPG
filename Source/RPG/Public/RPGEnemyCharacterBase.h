@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "EnemyHealthBarWidget.h"
+#include "Sound/SoundCue.h"
 #include "RPGEnemyCharacterBase.generated.h"
 
 class URPGPlayerStats;
@@ -25,6 +26,24 @@ protected:
 
 	virtual float TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	TArray<UAnimMontage*> DeathMontage;
+
+	bool PlayDeathMontage();
+
+	void UnbindMontage();
+
+	UFUNCTION()
+	void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+	void OnNotifyBeginRecieved(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
+
+	FOnMontageEnded MontageEndedDelegate;
+
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundCue* DeathSound = nullptr;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -32,7 +51,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	URPGPlayerStats* RPGPlayerStatsComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health Component")
@@ -41,9 +60,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDamage(ARPGEnemyCharacterBase* EnemyCharacterBase);
 
+	UFUNCTION()
+	void OnDeath();
+
 private:
 
-	FTimerHandle DelayTimer;
+	FTimerHandle DestroyTimer;
 
 	URPGPlayerStats* PlayerStatsCompRef = nullptr;
+
+	void DestroyEnemy();
 };

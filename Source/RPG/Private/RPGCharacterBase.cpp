@@ -172,12 +172,15 @@ void ARPGCharacterBase::UpdateXPBar()
 {
 	if (HUDWidget)
 	{
-		float CurrentXP = RPGPlayerStatsComponent->GetCurrentXP();
-		float MaxXP = RPGPlayerStatsComponent->GetMaxXP();
-		if (PlayerStatsCompRef)
+		if (RPGPlayerStatsComponent)
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateXPBar"));
-			HUDWidget->XPBar->SetPercent(CurrentXP / MaxXP);
+			float CurrentXP = RPGPlayerStatsComponent->GetCurrentXP();
+			float MaxXP = RPGPlayerStatsComponent->GetMaxXP();
+			if (PlayerStatsCompRef)
+			{
+				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateXPBar"));
+				HUDWidget->XPBar->SetPercent(CurrentXP / MaxXP);
+			}
 		}
 	}
 }

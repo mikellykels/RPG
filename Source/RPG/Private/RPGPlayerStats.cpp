@@ -39,6 +39,10 @@ void URPGPlayerStats::DecreaseHealth(float Damage)
 	{
 		CurrentHealth = CurrentHealth - Damage;
 	}
+	if (CurrentHealth <= 0)
+	{
+		OnDeathDelegate.Broadcast();
+	}
 }
 
 void URPGPlayerStats::IncreaseHealth()
