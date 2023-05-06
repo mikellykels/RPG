@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "RPGAttackSystem.h"
+#include "RPGEquipmentSystem.h"
 #include "RPGPlayerController.h"
 #include "RPGPlayerStats.h"
 #include "DrawDebugHelpers.h"
@@ -23,6 +24,7 @@ ARPGCharacterBase::ARPGCharacterBase()
 
 	RPGPlayerStatsComponent = CreateDefaultSubobject<URPGPlayerStats>(TEXT("Player Stats Comp"));
 	RPGAttackSystemComponent = CreateDefaultSubobject<URPGAttackSystem>(TEXT("Attack System Comp"));
+	RPGEquipmentSystemComponent = CreateDefaultSubobject<URPGEquipmentSystem>(TEXT("Equipment System Comp"));
 
 	TraceDistance = 2000;
 }
@@ -210,6 +212,7 @@ void ARPGCharacterBase::InteractPressed()
 	{
 		IInteractionInterface* Interface = Cast<IInteractionInterface>(FocusedActor);
 		Axe = Cast<ARPGAxe>(FocusedActor);
+		Weapon = Cast<AWeapon>(FocusedActor);
 		if (Interface)
 		{
 			if (Axe)
@@ -218,6 +221,13 @@ void ARPGCharacterBase::InteractPressed()
 				Interface->Execute_OnInteract(FocusedActor, this);
 				GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
 				GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+			}
+			// TODO: Update for other weapons
+			if (Weapon)
+			{
+				RPGEquipmentSystemComponent->AddWeaponToInventory(Weapon);
+				//RPGEquipmentSystemComponent->AddWeaponToInventory(Weapon->);
+				Weapon->Destroy();
 			}
 		}
 	}
@@ -229,6 +239,11 @@ void ARPGCharacterBase::RequestAttack()
 	{
 		RPGAttackSystemComponent->AxeAttack();
 	}
+}
+
+void ARPGCharacterBase::RequestEquipmentMenu()
+{
+	RPGEquipmentSystemComponent->DisplayEquipmentMenu();
 }
 
 void ARPGCharacterBase::TraceStartFocus(AActor* TraceActor)

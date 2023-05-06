@@ -34,8 +34,8 @@ protected:
 	void RequestLookRight(float AxisValue);
 
 	void InteractPressed();
-
 	void RequestAttack();
+	void RequestEquipmentMenu();
 
 	UPROPERTY(EditAnywhere, Category = "Look")
 	float BaseLookUpRate = 90.0f;

@@ -21,6 +21,7 @@ ARPGEnemyCharacterBase::ARPGEnemyCharacterBase()
 
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Health Bar Comp"));
 	HealthBarComponent->SetupAttachment(RootComponent);
+
 }
 
 // Called when the game starts or when spawned
@@ -29,8 +30,17 @@ void ARPGEnemyCharacterBase::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerStatsCompRef = Cast<URPGPlayerStats>(RPGPlayerStatsComponent);
+	PlayerStatsCompRef->OnDeathDelegate.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+	//PlayerStatsCompRef->OnDeathDelegate.BindDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+}
 
-	PlayerStatsCompRef->OnDeathDelegate.AddDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+void ARPGEnemyCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	/*PlayerStatsCompRef->OnDeathDelegate.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnDeath);*/
+
+	/*PlayerStatsCompRef->OnDeathDelegate.AddDynamic(this, &ARPGEnemyCharacterBase::OnDeath);*/
 }
 
 // Called every frame
@@ -51,7 +61,7 @@ void ARPGEnemyCharacterBase::OnDeath()
 	if (PlayDeathMontage())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("played montage!"));
-		PlayerStatsCompRef->OnDeathDelegate.RemoveDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+		//PlayerStatsCompRef->OnDeathDelegate.RemoveDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
 		GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &ARPGEnemyCharacterBase::DestroyEnemy, 5.0f, false);
 	}
 }
@@ -65,9 +75,10 @@ float ARPGEnemyCharacterBase::TakeDamage(const float DamageAmount, FDamageEvent 
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	RPGPlayerStatsComponent->DecreaseHealth(DamageAmount);
+	PlayerStatsCompRef->DecreaseHealth(DamageAmount);
 
 	float Damage = GetOwner()->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	PlayHitReactMontage();
 	OnDamage(this);
 
 	return Damage;
@@ -77,7 +88,8 @@ bool ARPGEnemyCharacterBase::PlayDeathMontage()
 {
 	const float PlayRate = 1.0f;
 	int32 Index = FMath::RandRange(0, DeathMontage.Num() - 1);
-	bool bPlayedSuccessfully = PlayAnimMontage(DeathMontage[Index], PlayRate) > 0.0f;
+	UAnimMontage* TestMontage = DeathMontage[Index];
+	bool bPlayedSuccessfully = PlayAnimMontage(TestMontage, PlayRate) > 0.0f;
 	if (bPlayedSuccessfully)
 	{
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
@@ -86,9 +98,33 @@ bool ARPGEnemyCharacterBase::PlayDeathMontage()
 		{
 			MontageEndedDelegate.BindUObject(this, &ARPGEnemyCharacterBase::OnMontageEnded);
 		}
-		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, DeathMontage[Index]);
+		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, TestMontage);
 
-		AnimInstance->OnPlayMontageNotifyBegin.AddDynamic(this, &ARPGEnemyCharacterBase::OnNotifyBeginRecieved);
+		AnimInstance->OnPlayMontageNotifyBegin.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnNotifyBeginRecieved);
+		return bPlayedSuccessfully;
+	}
+
+	return bPlayedSuccessfully;
+}
+
+bool ARPGEnemyCharacterBase::PlayHitReactMontage()
+{
+	const float PlayRate = 1.0f;
+	int32 Index = FMath::RandRange(0, HitReactMontage.Num() - 1);
+	UAnimMontage* TestMontage = HitReactMontage[Index];
+	bool bPlayedSuccessfully = PlayAnimMontage(TestMontage, PlayRate) > 0.0f;
+	if (bPlayedSuccessfully)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("played hit react montage!"));
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+		if (!MontageEndedDelegate.IsBound())
+		{
+			MontageEndedDelegate.BindUObject(this, &ARPGEnemyCharacterBase::OnMontageEnded);
+		}
+		AnimInstance->Montage_SetEndDelegate(MontageEndedDelegate, TestMontage);
+
+		AnimInstance->OnPlayMontageNotifyBegin.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnNotifyBeginRecieved);
 		return bPlayedSuccessfully;
 	}
 
@@ -119,6 +155,13 @@ void ARPGEnemyCharacterBase::OnNotifyBeginRecieved(FName NotifyName, const FBran
 			UGameplayStatics::PlaySoundAtLocation(this, DeathSound, CharacterLocation);
 		}
 	}
+}
+
+void ARPGEnemyCharacterBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	PlayerStatsCompRef->OnDeathDelegate.RemoveDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+
+	Super::EndPlay(EndPlayReason);
 }
 
 

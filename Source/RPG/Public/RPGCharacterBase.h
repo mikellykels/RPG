@@ -8,10 +8,12 @@
 #include "HUDWidget.h"
 #include "RPGAxe.h"
 #include "Sound/SoundCue.h"
+#include "Weapon.h"
 #include "RPGCharacterBase.generated.h"
 
 class URPGPlayerStats;
 class URPGAttackSystem;
+class URPGEquipmentSystem;
 
 UENUM(BlueprintType)
 enum class ECharacterWeaponEquipped : uint8
@@ -116,8 +118,8 @@ public:
 	void RequestSprintStop();
 
 	void InteractPressed();
-
 	void RequestAttack();
+	void RequestEquipmentMenu();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	URPGPlayerStats* RPGPlayerStatsComponent;
@@ -125,11 +127,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	URPGAttackSystem* RPGAttackSystemComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	URPGEquipmentSystem* RPGEquipmentSystemComponent;
+
 private:
 
 	AActor* FocusedActor;
 
 	ARPGAxe* Axe;
+	AWeapon* Weapon;
 
 	void TraceStartFocus(AActor* TraceActor);
 	void TraceEndFocus(AActor* TraceActor);

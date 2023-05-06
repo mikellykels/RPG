@@ -35,6 +35,9 @@ void ARPGPlayerController::SetupInputComponent()
 
 		// ** ATTACKS ** //
 		InputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestAttack);
+
+		// ** EQUIPMENT MENU ** //
+		InputComponent->BindAction(TEXT("EquipmentMenu"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestEquipmentMenu);
 	}
 }
 
@@ -113,6 +116,14 @@ void ARPGPlayerController::RequestAttack()
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
 		RPGCharacter->RequestAttack();
+	}
+}
+
+void ARPGPlayerController::RequestEquipmentMenu()
+{
+	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
+	{
+		RPGCharacter->RequestEquipmentMenu();
 	}
 }
 

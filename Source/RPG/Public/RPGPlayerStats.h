@@ -9,6 +9,7 @@
 #include "EnemyHealthBarWidget.h"
 #include "RPGPlayerStats.generated.h"
 
+//DECLARE_DYNAMIC_DELEGATE(FDeathDelegate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDeathDelegate);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,7 +33,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// ** DELEGATES ** //
-	UPROPERTY(BlueprintAssignable, Category = "Death")
+	UPROPERTY(BlueprintAssignable)
 	FDeathDelegate OnDeathDelegate;
 
 	// ** HEALTH ** //
