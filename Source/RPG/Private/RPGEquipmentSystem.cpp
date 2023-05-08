@@ -66,7 +66,7 @@ void URPGEquipmentSystem::DisplayEquipmentMenu()
 					EquipmentWidgetRef->SetVisibility(ESlateVisibility::Visible);
 				}
 				EquipmentWidgetRef->AddToViewport();
-				PlayerController->SetInputMode(FInputModeGameAndUI());
+				PlayerController->SetInputMode(FInputModeUIOnly());
 				PlayerController->SetShowMouseCursor(true);
 
 				CharacterBase = Cast<ARPGCharacterBase>(GetOwner());

@@ -6,6 +6,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "RPGPlayerStats.h"
 
@@ -34,15 +35,6 @@ void ARPGEnemyCharacterBase::BeginPlay()
 	//PlayerStatsCompRef->OnDeathDelegate.BindDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
 }
 
-void ARPGEnemyCharacterBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	/*PlayerStatsCompRef->OnDeathDelegate.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnDeath);*/
-
-	/*PlayerStatsCompRef->OnDeathDelegate.AddDynamic(this, &ARPGEnemyCharacterBase::OnDeath);*/
-}
-
 // Called every frame
 void ARPGEnemyCharacterBase::Tick(float DeltaTime)
 {
@@ -62,6 +54,7 @@ void ARPGEnemyCharacterBase::OnDeath()
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("played montage!"));
 		//PlayerStatsCompRef->OnDeathDelegate.RemoveDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
+		GetCharacterMovement()->DisableMovement();
 		GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &ARPGEnemyCharacterBase::DestroyEnemy, 5.0f, false);
 	}
 }

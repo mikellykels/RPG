@@ -121,13 +121,13 @@ public:
 	void RequestAttack();
 	void RequestEquipmentMenu();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	URPGPlayerStats* RPGPlayerStatsComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	URPGAttackSystem* RPGAttackSystemComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	URPGEquipmentSystem* RPGEquipmentSystemComponent;
 
 private:
