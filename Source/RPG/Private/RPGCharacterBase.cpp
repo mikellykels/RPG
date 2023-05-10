@@ -5,6 +5,8 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Components/Image.h"
+#include "Engine/Texture2D.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -217,16 +219,20 @@ void ARPGCharacterBase::InteractPressed()
 		{
 			if (Axe)
 			{
+				FString AxeImagePath = FString("/Game/RPG/UI/Icons/SK_Axe_256x256.SK_Axe_256x256");
+				UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *AxeImagePath));
+
 				CharacterWeaponEquipped = ECharacterWeaponEquipped::GreatAxe;
 				Interface->Execute_OnInteract(FocusedActor, this);
 				GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
 				GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+				HUDWidget->EquippedImage->SetBrushFromTexture(Texture);
+				HUDWidget->EquippedName->SetText(FText::FromString(Axe->WeaponData.Name));
+				OnEquip(Axe);
 			}
-			// TODO: Update for other weapons
 			if (Weapon)
 			{
 				RPGEquipmentSystemComponent->AddWeaponToInventory(Weapon);
-				//RPGEquipmentSystemComponent->AddWeaponToInventory(Weapon->);
 				Weapon->Destroy();
 			}
 		}

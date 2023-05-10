@@ -32,7 +32,6 @@ void ARPGEnemyCharacterBase::BeginPlay()
 
 	PlayerStatsCompRef = Cast<URPGPlayerStats>(RPGPlayerStatsComponent);
 	PlayerStatsCompRef->OnDeathDelegate.AddUniqueDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
-	//PlayerStatsCompRef->OnDeathDelegate.BindDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
 }
 
 // Called every frame

@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Actor.h"
 #include "InteractionInterface.h"
+#include "RPGWeaponData.h"
 #include "RPGAxe.generated.h"
 
 UCLASS()
@@ -61,6 +62,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box")
 	UArrowComponent* AxeRightPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FWeaponData WeaponData;
 
 private:
 

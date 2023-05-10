@@ -58,7 +58,6 @@ void URPGEquipmentSystem::DisplayEquipmentMenu()
 		{
 			EquipmentWidgetRef = CreateWidget<UEquipmentWidget>(PlayerController, EquipmentWidgetClass);
 			IsEquipmentMenuOpen = true;
-
 			if (EquipmentWidgetRef)
 			{
 				if (EquipmentWidgetRef->IsInViewport())
@@ -66,7 +65,7 @@ void URPGEquipmentSystem::DisplayEquipmentMenu()
 					EquipmentWidgetRef->SetVisibility(ESlateVisibility::Visible);
 				}
 				EquipmentWidgetRef->AddToViewport();
-				PlayerController->SetInputMode(FInputModeUIOnly());
+				PlayerController->SetInputMode(FInputModeGameAndUI());
 				PlayerController->SetShowMouseCursor(true);
 
 				CharacterBase = Cast<ARPGCharacterBase>(GetOwner());

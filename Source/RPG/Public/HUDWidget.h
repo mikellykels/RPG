@@ -8,6 +8,7 @@
 
 class UProgressBar;
 class UTextBlock;
+class UImage;
 
 /**
  * 
@@ -29,7 +30,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* HealthText;
 	
-	// ** Level and XP ** //
+	// ** LEVEL AND XP ** //
 	UPROPERTY(meta = (BindWidget))
 	UProgressBar* XPBar;
 
@@ -38,4 +39,11 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* XPText;
+
+	// ** EQUIPPED ** //
+	UPROPERTY(meta = (BindWidget))
+	UImage* EquippedImage;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* EquippedName;
 };

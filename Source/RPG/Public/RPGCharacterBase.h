@@ -108,10 +108,7 @@ protected:
 	bool bIsSprinting = false;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void RequestSprintStart();
@@ -129,6 +126,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	URPGEquipmentSystem* RPGEquipmentSystemComponent;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEquip(AActor* EquippedWeapon);
 
 private:
 
