@@ -141,16 +141,11 @@ void ARPGCharacterBase::UpdateHealthBar()
 		
 		if (CurrentHealth <= 0)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("DEAD"));
-			if (PlayDeathMontage())
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Played Death Montage"));
-			}
+			PlayDeathMontage();
 		}
 
 		if (PlayerStatsCompRef)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("UpdateHealth"));
 			FString CurrentHealthStr = FString::SanitizeFloat(CurrentHealth, 0);
 			HUDWidget->HealthBar->SetPercent(CurrentHealth / MaxHealth);
 			HUDWidget->HealthText->SetText(FText::FromString(CurrentHealthStr));
@@ -166,7 +161,6 @@ void ARPGCharacterBase::UpdateStaminaBar()
 		float MaxStamina = RPGPlayerStatsComponent->GetMaxStamina();
 		if (PlayerStatsCompRef && (CurrentStamina < MaxStamina))
 		{
-			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateStamina"));
 			HUDWidget->StaminaBar->SetPercent(CurrentStamina / MaxStamina);
 		}
 	}
@@ -182,7 +176,6 @@ void ARPGCharacterBase::UpdateXPBar()
 			float MaxXP = RPGPlayerStatsComponent->GetMaxXP();
 			if (PlayerStatsCompRef)
 			{
-				//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("UpdateXPBar"));
 				HUDWidget->XPBar->SetPercent(CurrentXP / MaxXP);
 			}
 		}
@@ -219,16 +212,19 @@ void ARPGCharacterBase::InteractPressed()
 		{
 			if (Axe)
 			{
-				FString AxeImagePath = FString("/Game/RPG/UI/Icons/SK_Axe_256x256.SK_Axe_256x256");
-				UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *AxeImagePath));
+				if (HUDWidget)
+				{
+					FString AxeImagePath = FString("/Game/RPG/UI/Icons/SK_Axe_256x256.SK_Axe_256x256");
+					UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *AxeImagePath));
 
-				CharacterWeaponEquipped = ECharacterWeaponEquipped::GreatAxe;
-				Interface->Execute_OnInteract(FocusedActor, this);
-				GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
-				GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
-				HUDWidget->EquippedImage->SetBrushFromTexture(Texture);
-				HUDWidget->EquippedName->SetText(FText::FromString(Axe->WeaponData.Name));
-				OnEquip(Axe);
+					CharacterWeaponEquipped = ECharacterWeaponEquipped::GreatAxe;
+					Interface->Execute_OnInteract(FocusedActor, this);
+					GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
+					GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+					HUDWidget->EquippedImage->SetBrushFromTexture(Texture);
+					HUDWidget->EquippedName->SetText(FText::FromString(Axe->WeaponData.Name));
+					OnEquip(Axe);
+				}
 			}
 			if (Weapon)
 			{

@@ -42,11 +42,6 @@ void URPGEquipmentSystem::AddWeaponToInventory(AActor* InWeapon)
 	Weapon = Cast<AWeapon>(InWeapon);
 	WeaponSlots.Add(Weapon->ItemData);
 	FString Name = Weapon->ItemData.Item.RowName.ToString();
-
-	for (FSlots WeaponSlot : WeaponSlots)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, Name);
-	}
 }
 
 void URPGEquipmentSystem::DisplayEquipmentMenu()

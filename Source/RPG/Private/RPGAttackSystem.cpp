@@ -53,7 +53,7 @@ void URPGAttackSystem::AxeTrace()
 
 		FHitResult Hit;
 
-		bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), AxeLeftPointLoc, AxeRightPointLoc, 15.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
+		bool bHit = UKismetSystemLibrary::SphereTraceSingle(GetWorld(), AxeLeftPointLoc, AxeRightPointLoc, 15.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.1f);
 		if (bHit)
 		{
 			//DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(5, 5, 5), FColor::Emerald, false, 2.0f);
@@ -66,7 +66,6 @@ void URPGAttackSystem::AxeTrace()
 			if (EnemyHit->ActorHasTag("Damageable"))
 			{
 				TSubclassOf <UDamageType> DamageType;
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("HITHIT!"));
 				EnemyHit->TakeDamage(20.0f, FDamageEvent(), CharacterBase->GetController(), Axe);
 				bEnemyHit = true;
 			}

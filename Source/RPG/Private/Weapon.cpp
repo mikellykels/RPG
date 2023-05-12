@@ -40,20 +40,18 @@ void AWeapon::Tick(float DeltaTime)
 void AWeapon::OnInteract_Implementation(AActor* Caller)
 {
 	State = EState::Equipped;
-	//Destroy();
+;
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(Caller))
 	{
 		AttachToComponent(RPGCharacter->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("hand_r_2H_Weapon"));
 		SetOwner(RPGCharacter);
 		Execute_EndFocus(this);
 		InteractionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		//GetStticMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	}
 }
 
 void AWeapon::StartFocus_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Start focus"));
 	if (State != EState::Equipped)
 	{
 		InteractionWidget->SetVisibility(true);
@@ -62,7 +60,6 @@ void AWeapon::StartFocus_Implementation()
 
 void AWeapon::EndFocus_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("End focus"));
 	InteractionWidget->SetVisibility(false);
 }
 

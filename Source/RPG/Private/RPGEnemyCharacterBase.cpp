@@ -51,8 +51,6 @@ void ARPGEnemyCharacterBase::OnDeath()
 {
 	if (PlayDeathMontage())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("played montage!"));
-		//PlayerStatsCompRef->OnDeathDelegate.RemoveDynamic(this, &ARPGEnemyCharacterBase::OnDeath);
 		GetCharacterMovement()->DisableMovement();
 		GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &ARPGEnemyCharacterBase::DestroyEnemy, 5.0f, false);
 	}
@@ -107,7 +105,6 @@ bool ARPGEnemyCharacterBase::PlayHitReactMontage()
 	bool bPlayedSuccessfully = PlayAnimMontage(TestMontage, PlayRate) > 0.0f;
 	if (bPlayedSuccessfully)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("played hit react montage!"));
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 		if (!MontageEndedDelegate.IsBound())

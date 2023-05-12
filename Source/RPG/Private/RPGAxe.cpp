@@ -58,7 +58,6 @@ void ARPGAxe::OnInteract_Implementation(AActor* Caller)
 
 void ARPGAxe::StartFocus_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Start focus"));
 	if (State != EState::Equipped)
 	{
 		InteractionWidget->SetVisibility(true);
@@ -67,7 +66,6 @@ void ARPGAxe::StartFocus_Implementation()
 
 void ARPGAxe::EndFocus_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("End focus"));
 	InteractionWidget->SetVisibility(false);
 }
 
