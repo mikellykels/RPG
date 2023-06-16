@@ -523,3 +523,5 @@ enc_temp_folder/*
 Content/HQUI_ProgressBars/*
 Content/IconGenerator/*
 Content/RPG/Audio/BackgroundMusic/Background.uasset
+Content/Cargo/*
+Plugins/Cargo/*
