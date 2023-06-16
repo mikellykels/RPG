@@ -14,6 +14,8 @@
 class URPGPlayerStats;
 class URPGAttackSystem;
 class URPGEquipmentSystem;
+class USpringArmComponent;
+class UCameraComponent;
 
 UENUM(BlueprintType)
 enum class ECharacterWeaponEquipped : uint8
@@ -26,6 +28,14 @@ UCLASS()
 class RPG_API ARPGCharacterBase : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
+
+	//** Camera boom positioning the camera behind the character *//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = true))
+	USpringArmComponent* CameraBoom;
+
+	//** Follow camera *//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera", meta = (AllowPrivateAccess = true))
+	UCameraComponent* FollowCamera;
 
 public:
 	// Sets default values for this character's properties
@@ -109,7 +119,6 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void RequestSprintStart();
 	void RequestSprintStop();

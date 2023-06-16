@@ -2,42 +2,97 @@
 
 
 #include "RPGPlayerController.h"
+#include "Components/InputComponent.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "RPGCharacterBase.h"
 
+ARPGPlayerController::ARPGPlayerController()
+{
+}
+
 void ARPGPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Add Input Mapping Context
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
+	{
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
 }
 
 void ARPGPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	if (InputComponent)
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
-		// ** MOVEMENT ** //
-		InputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestJumpStart);
-		InputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &ARPGPlayerController::RequestJumpStop);
+		// ** Moving ** //
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestMove);
 
-		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestSprintStart);
-		InputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &ARPGPlayerController::RequestSprintStop);
+		// ** Looking ** //
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestLook);
 
-		InputComponent->BindAxis(TEXT("MoveForward"), this, &ARPGPlayerController::RequestMoveForward);
-		InputComponent->BindAxis(TEXT("MoveRight"), this, &ARPGPlayerController::RequestMoveRight);
-		InputComponent->BindAxis(TEXT("LookUp"), this, &ARPGPlayerController::RequestLookUp);
-		InputComponent->BindAxis(TEXT("LookRight"), this, &ARPGPlayerController::RequestLookRight);
+		//** Sprinting **//
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestSprintStart);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ARPGPlayerController::RequestSprintStop);
+
+		//** Jumping **//
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestJumpStart);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ARPGPlayerController::RequestJumpStop);
 
 		// ** INTERACT ** //
-		InputComponent->BindAction(TEXT("Interact"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::InteractPressed);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestInteract);
 
-		// ** ATTACKS ** //
-		InputComponent->BindAction(TEXT("Attack"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestAttack);
+		// ** ATTACK ** //
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestAttack);
 
-		// ** EQUIPMENT MENU ** //
-		InputComponent->BindAction(TEXT("EquipmentMenu"), EInputEvent::IE_Pressed, this, &ARPGPlayerController::RequestEquipmentMenu);
+		// ** INVENTORY MENU ** //
+		EnhancedInputComponent->BindAction(InventoryMenuAction, ETriggerEvent::Triggered, this, &ARPGPlayerController::RequestInventoryMenu);
+	}
+}
+
+void ARPGPlayerController::RequestMove(const FInputActionValue& Value)
+{
+	ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter());
+
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
+
+	if (RPGCharacter != nullptr)
+	{
+		// find out which way is forward
+		const FRotator Rotation = RPGCharacter->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+
+		// get right vector
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// add movement
+		RPGCharacter->AddMovementInput(ForwardDirection, MovementVector.Y);
+		RPGCharacter->AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
+void ARPGPlayerController::RequestLook(const FInputActionValue& Value)
+{
+	ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter());
+
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
+
+	if (RPGCharacter != nullptr)
+	{
+		// add yaw and pitch input to controller
+		RPGCharacter->AddControllerYawInput(LookAxisVector.X);
+		RPGCharacter->AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
 
@@ -57,7 +112,6 @@ void ARPGPlayerController::RequestJumpStop()
 	}
 }
 
-
 void ARPGPlayerController::RequestSprintStart()
 {
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
@@ -74,36 +128,7 @@ void ARPGPlayerController::RequestSprintStop()
 	}
 }
 
-void ARPGPlayerController::RequestMoveForward(float AxisValue)
-{
-	if (AxisValue != 0.f)
-	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-
-		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), AxisValue);
-	}
-}
-
-void ARPGPlayerController::RequestMoveRight(float AxisValue)
-{
-	if (AxisValue != 0.f)
-	{
-		FRotator const ControlSpaceRot = GetControlRotation();
-
-		GetPawn()->AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), AxisValue);
-	}
-}
-
-void ARPGPlayerController::RequestLookUp(float AxisValue)
-{
-	AddPitchInput(AxisValue * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-}
-
-void ARPGPlayerController::RequestLookRight(float AxisValue)
-{
-	AddYawInput(AxisValue * BaseLookRightRate * GetWorld()->GetDeltaSeconds());
-}
-void ARPGPlayerController::InteractPressed()
+void ARPGPlayerController::RequestInteract()
 {
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
@@ -119,7 +144,7 @@ void ARPGPlayerController::RequestAttack()
 	}
 }
 
-void ARPGPlayerController::RequestEquipmentMenu()
+void ARPGPlayerController::RequestInventoryMenu()
 {
 	if (ARPGCharacterBase* RPGCharacter = Cast<ARPGCharacterBase>(GetCharacter()))
 	{
