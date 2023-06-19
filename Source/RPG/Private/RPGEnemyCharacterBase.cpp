@@ -120,7 +120,6 @@ bool ARPGEnemyCharacterBase::PlayHitReactMontage()
 	return bPlayedSuccessfully;
 }
 
-
 void ARPGEnemyCharacterBase::UnbindMontage()
 {
 	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
