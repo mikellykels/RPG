@@ -60,6 +60,18 @@ void ARPGCharacterBase::BeginPlay()
 	DisplayHUDWidget();
 }
 
+float ARPGCharacterBase::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	PlayerStatsCompRef->DecreaseHealth(DamageAmount);
+
+	float Damage = GetOwner()->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	UpdateHealthBar();
+
+	return Damage;
+}
+
 // Called every frame
 void ARPGCharacterBase::Tick(float DeltaTime)
 {

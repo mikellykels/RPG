@@ -115,6 +115,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Movement")
 	float DefaultWalkSpeed = 0.0f;
 
+	virtual float TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 	bool bIsSprinting = false;
 
 public:	
