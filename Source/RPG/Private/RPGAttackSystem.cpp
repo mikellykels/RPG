@@ -48,7 +48,6 @@ void URPGAttackSystem::AxeTrace()
 		ARPGAxe* Axe = Cast<ARPGAxe>(AttachedAxe);
 		FVector AxeLeftPointLoc = Axe->AxeLeftPoint->GetComponentLocation();
 		FVector AxeRightPointLoc = Axe->AxeRightPoint->GetComponentLocation();
-		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(GetOwner());
 
 		FHitResult Hit;
@@ -167,6 +166,24 @@ bool URPGAttackSystem::PlayAttackMontage(UAnimMontage* AttackMontage)
 		return bPlayedSuccessfully;
 	}
 	return bPlayedSuccessfully;
+}
+
+bool URPGAttackSystem::PlayHitReactMontage(bool bIsAxeEquipped)
+{
+	UAnimMontage* MontageToPlay = bIsAxeEquipped ? HitReactAxeMontage : HitReactMontage;
+
+	const float PlayRate = 0.75f;
+
+	bool bPlayedSuccessfully = CharacterBase->PlayAnimMontage(MontageToPlay, PlayRate) > 0.0f;
+	if (bPlayedSuccessfully)
+	{
+		UAnimInstance* AnimInstance = CharacterBase->GetMesh()->GetAnimInstance();
+
+		return bPlayedSuccessfully;
+	}
+
+	return true;
+
 }
 
 void URPGAttackSystem::UnbindMontage()

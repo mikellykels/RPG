@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
-#include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/Actor.h"
 #include "InteractionInterface.h"
 #include "RPGWeaponData.h"
 #include "RPGAxe.generated.h"
+
+class UStaticMeshComponent;
 
 UCLASS()
 class RPG_API ARPGAxe : public AActor, public IInteractionInterface
@@ -57,6 +58,12 @@ public:
 	void EndFocus();
 	virtual void EndFocus_Implementation();
 
+	UPROPERTY(EditAnywhere)
+	USceneComponent* _RootComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mesh");
+	UStaticMeshComponent* AxeMesh;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hit Box")
 	UArrowComponent* AxeLeftPoint;
 
@@ -67,13 +74,6 @@ public:
 	FWeaponData WeaponData;
 
 private:
-
-	UPROPERTY(EditAnywhere)
-	USceneComponent* _RootComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Mesh");
-	USkeletalMeshComponent* AxeMesh;
-
 	EState State = EState::Idle;
 
 	bool bHasBeenPickedUp = false;

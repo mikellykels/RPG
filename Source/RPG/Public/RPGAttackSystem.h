@@ -25,6 +25,14 @@ public:
 	void AxeAttackCombo();
 	void AxeAttackStopCombo();
 
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* HitReactMontage = nullptr;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	UAnimMontage* HitReactAxeMontage = nullptr;
+
+	bool PlayHitReactMontage(bool bIsAxeEquipped);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -68,12 +76,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	TArray<AActor*> ActorsToIgnore;
+
 private:
 
 	FTimerHandle DelayTimer;
 	FTimerHandle AxeTraceLoop;
 
-	ARPGCharacterBase* CharacterBase;
+	ARPGCharacterBase* CharacterBase = nullptr;
 
 	void AxeTrace();
 };

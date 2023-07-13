@@ -51,6 +51,7 @@ void ARPGCharacterBase::BeginPlay()
 
 	MoveCompRef = GetCharacterMovement();
 	PlayerStatsCompRef = Cast<URPGPlayerStats>(RPGPlayerStatsComponent);
+	AttackSystemCompRef = Cast<URPGAttackSystem>(RPGAttackSystemComponent);
 
 	if (GetController()->GetCharacter())
 	{
@@ -65,6 +66,8 @@ float ARPGCharacterBase::TakeDamage(const float DamageAmount, FDamageEvent const
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	PlayerStatsCompRef->DecreaseHealth(DamageAmount);
+
+	GetWorld()->GetTimerManager().SetTimer(DelayHitReactTimer, this, &ARPGCharacterBase::OnHitReact, 0.75f, false);
 
 	float Damage = GetOwner()->TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	UpdateHealthBar();
@@ -236,9 +239,10 @@ void ARPGCharacterBase::InteractPressed()
 					UTexture2D* Texture = Cast<UTexture2D>(StaticLoadObject(UTexture2D::StaticClass(), NULL, *AxeImagePath));
 
 					CharacterWeaponEquipped = ECharacterWeaponEquipped::GreatAxe;
+					bIsAxeEquipped = true;
 					Interface->Execute_OnInteract(FocusedActor, this);
-					GetMesh()->SetCollisionObjectType(ECC_GameTraceChannel1);
 					GetCapsuleComponent()->SetCollisionObjectType(ECC_GameTraceChannel1);
+
 					HUDWidget->EquippedImage->SetBrushFromTexture(Texture);
 					HUDWidget->EquippedName->SetText(FText::FromString(Axe->WeaponData.Name));
 					OnEquip(Axe);
@@ -282,6 +286,11 @@ void ARPGCharacterBase::TraceEndFocus(AActor* TraceActor)
 	{
 		Interface->Execute_EndFocus(TraceActor);
 	}
+}
+
+void ARPGCharacterBase::OnHitReact()
+{
+	AttackSystemCompRef->PlayHitReactMontage(bIsAxeEquipped);
 }
 
 void ARPGCharacterBase::TraceForward_Implementation()

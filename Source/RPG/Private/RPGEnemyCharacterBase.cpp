@@ -2,7 +2,11 @@
 
 
 #include "RPGEnemyCharacterBase.h"
+#include "RPGAttackSystem.h"
+#include "RPGAxe.h"
+#include "RPGCharacterBase.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "Components/WidgetComponent.h"
@@ -52,6 +56,20 @@ void ARPGEnemyCharacterBase::OnDeath()
 	if (PlayDeathMontage())
 	{
 		GetCharacterMovement()->DisableMovement();
+		// This will make the character ignore collisions with the enemy
+		GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+		// This will make the enemy ignore collisions with the character
+		GetMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore);
+
+		if (CharacterBase != nullptr)
+		{
+			// Retrieve RPGAttackSystem component from CharacterBase
+			URPGAttackSystem* AttackSystem = CharacterBase->FindComponentByClass<URPGAttackSystem>();
+			if (AttackSystem)
+			{
+				AttackSystem->ActorsToIgnore.Add(this);
+			}
+		}
 		GetWorld()->GetTimerManager().SetTimer(DestroyTimer, this, &ARPGEnemyCharacterBase::DestroyEnemy, 5.0f, false);
 	}
 }
@@ -64,6 +82,17 @@ void ARPGEnemyCharacterBase::DestroyEnemy()
 float ARPGEnemyCharacterBase::TakeDamage(const float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	// Check if the DamageCauser is an instance of RPGAxe
+	if (ARPGAxe* Causer = Cast<ARPGAxe>(DamageCauser))
+	{
+		// Check if the owner of the RPGAxe is an instance of CharacterBase
+		if (ARPGCharacterBase* Character = Cast<ARPGCharacterBase>(Causer->GetOwner()))
+		{
+			// Store a reference to it
+			CharacterBase = Character;
+		}
+	}
 
 	PlayerStatsCompRef->DecreaseHealth(DamageAmount);
 

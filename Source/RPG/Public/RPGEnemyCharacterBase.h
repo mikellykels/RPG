@@ -8,6 +8,7 @@
 #include "Sound/SoundCue.h"
 #include "RPGEnemyCharacterBase.generated.h"
 
+class ARPGCharacterBase;
 class URPGPlayerStats;
 class UWidgetComponent;
 
@@ -73,6 +74,8 @@ private:
 	FTimerHandle DestroyTimer;
 
 	URPGPlayerStats* PlayerStatsCompRef = nullptr;
+
+	ARPGCharacterBase* CharacterBase;
 
 	void DestroyEnemy();
 };

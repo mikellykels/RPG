@@ -141,6 +141,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnEquip(AActor* EquippedWeapon);
 
+	bool bIsAxeEquipped = false;
+
 private:
 
 	AActor* FocusedActor;
@@ -154,10 +156,15 @@ private:
 	UCharacterMovementComponent* MoveCompRef = nullptr;
 
 	URPGPlayerStats* PlayerStatsCompRef = nullptr;
+	URPGAttackSystem* AttackSystemCompRef = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "HUD")
 	TSubclassOf<UUserWidget> HUDWidgetClass = nullptr;
 
 	UPROPERTY()
 	UHUDWidget* HUDWidget;
+
+	FTimerHandle DelayHitReactTimer;
+
+	void OnHitReact();
 };

@@ -3,6 +3,7 @@
 
 #include "RPGAxe.h"
 #include "RPGCharacterBase.h"
+#include "Components/StaticMeshComponent.h"
 
 // Sets default values
 ARPGAxe::ARPGAxe()
@@ -13,7 +14,7 @@ ARPGAxe::ARPGAxe()
 	_RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root Component"));
 	RootComponent = _RootComponent;
 
-	AxeMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Axe Mesh"));
+	AxeMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Axe Mesh"));
 	AxeMesh->SetupAttachment(RootComponent);
 
 	InteractionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Interaction Box"));
@@ -52,6 +53,7 @@ void ARPGAxe::OnInteract_Implementation(AActor* Caller)
 		SetOwner(RPGCharacter);
 		Execute_EndFocus(this);
 		InteractionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		InteractionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 		AxeMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Overlap);
 	}
 }
